@@ -6,9 +6,14 @@ using vehicle_management_backend.Application.Services.Interfaces;
 using vehicle_management_backend.Infrastructure.Data;
 using vehicle_management_backend.Infrastructure.Repositories.Implementations;
 using vehicle_management_backend.Infrastructure.Repositories.Interfaces;
+
 var builder = WebApplication.CreateBuilder(args);
+
+// ===================== DATABASE =====================
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+// ===================== DEPENDENCY INJECTION =====================
 builder.Services.AddScoped<IVehicleRepository, VehicleRepository>();
 builder.Services.AddScoped<IVehicleService, VehicleService>();
 builder.Services.AddScoped<IBrandRespository, BrandRepository>();
@@ -18,52 +23,60 @@ builder.Services.AddScoped<IModelService, ModelService>();
 builder.Services.AddScoped<IDealerRepository, DealerRepository>();
 builder.Services.AddScoped<IDealerService, DealerService>();
 
+// ===================== CONTROLLERS =====================
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {
         options.JsonSerializerOptions.PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase;
         options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
-        // Add JsonStringEnumConverter to serialize enums as strings instead of integers
         options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
     });
+
 builder.Services.AddEndpointsApiExplorer();
+
+// ===================== CORS (Single Policy) =====================
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowAngularApp",
-        builder => builder
-            .WithOrigins("http://localhost:4200")
-            .AllowAnyMethod()
-            .AllowAnyHeader());
+    options.AddPolicy("AllowFrontend", policy =>
+    {
+        policy
+            .WithOrigins(
+                "http://localhost:4200",
+                "https://lively-ground-0b2406a1e.4.azurestaticapps.net"
+            )
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+    });
 });
+
+// ===================== SWAGGER =====================
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo
     {
-        Title = "vehicle-management-backend",
-        Version = "1.0"
+        Title = "Vehicle Management API",
+        Version = "v1"
     });
 });
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowAll",
-        builder =>
-        {
-            builder.AllowAnyOrigin()
-                   .AllowAnyMethod()
-                   .AllowAnyHeader();
-        });
-});
+
 var app = builder.Build();
-if (app.Environment.IsDevelopment())
+
+// ===================== SWAGGER (Azure + Local) =====================
+var enableSwagger = builder.Configuration.GetValue<bool>("EnableSwagger");
+
+if (enableSwagger)
 {
     app.UseSwagger();
     app.UseSwaggerUI(c =>
     {
-        c.SwaggerEndpoint("/swagger/v1/swagger.json", "vehicle-management-backend");
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Vehicle Management API v1");
+        c.RoutePrefix = "swagger";
     });
 }
+
+// ===================== MIDDLEWARE =====================
 app.UseHttpsRedirection();
-app.UseCors("AllowAll");
+app.UseCors("AllowFrontend");
 app.UseAuthorization();
 app.MapControllers();
 app.Run();
