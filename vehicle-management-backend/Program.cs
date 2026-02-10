@@ -43,6 +43,16 @@ builder.Services.AddSwaggerGen(c =>
         Version = "1.0"
     });
 });
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll",
+        builder =>
+        {
+            builder.AllowAnyOrigin()
+                   .AllowAnyMethod()
+                   .AllowAnyHeader();
+        });
+});
 var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
@@ -53,7 +63,7 @@ if (app.Environment.IsDevelopment())
     });
 }
 app.UseHttpsRedirection();
-app.UseCors("AllowAngularApp");
+app.UseCors("AllowAll");
 app.UseAuthorization();
 app.MapControllers();
 app.Run();
