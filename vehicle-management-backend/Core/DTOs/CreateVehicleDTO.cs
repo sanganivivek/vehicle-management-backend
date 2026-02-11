@@ -7,6 +7,8 @@ namespace vehicle_management_backend.Core.DTOs
     public class VehicleDTO
     {
         public Guid VehicleId { get; set; }
+        public int? DealerId { get; set; }
+        public string? DealerName { get; set; }
         public string RegNo { get; set; }
         public string ChassisNumber { get; set; }
 

@@ -21,6 +21,7 @@ namespace vehicle_management_backend.Infrastructure.Repositories.Implementations
             return await _context.Vehicles
                 .Include(v => v.Brand)
                 .Include(v => v.Model)
+                .Include(v => v.Dealer)
                 .OrderByDescending(v => v.CreatedAt)
                 .ToListAsync();
         }
@@ -31,6 +32,7 @@ namespace vehicle_management_backend.Infrastructure.Repositories.Implementations
             var query = _context.Vehicles
                 .Include(v => v.Brand)
                 .Include(v => v.Model)
+                .Include(v => v.Dealer)
                 .AsQueryable();
 
             // Filter by Status
@@ -93,6 +95,7 @@ namespace vehicle_management_backend.Infrastructure.Repositories.Implementations
             return await _context.Vehicles
                 .Include(v => v.Brand)
                 .Include(v => v.Model)
+                .Include(v => v.Dealer)
                 .FirstOrDefaultAsync(v => v.VehicleId == id);
         }
 

@@ -15,6 +15,8 @@ namespace vehicle_management_backend.Core.Models
 
         public Guid ModelId { get; set; }
         public Model? Model { get; set; }
+        public int? DealerId { get; set; }
+        public Dealer? Dealer { get; set; }
 
         // Enums and details
         public vehicle_management_backend.Core.Enums.VehicleType VehicleType { get; set; }

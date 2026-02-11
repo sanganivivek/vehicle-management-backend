@@ -5,6 +5,7 @@ namespace vehicle_management_backend.Core.DTOs
     public class UpdateVehicleDTO
     {
         public Guid VehicleId { get; set; }
+        public int? DealerId { get; set; }
         public string RegNo { get; set; } = string.Empty;
         public string ChassisNumber { get; set; } = string.Empty;
         

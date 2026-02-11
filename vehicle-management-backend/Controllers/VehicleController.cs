@@ -78,6 +78,7 @@ namespace vehicle_management_backend.Controllers
                 {
                     VehicleId = Guid.NewGuid(),
                     RegNo = dto.RegNo ?? string.Empty,
+                    DealerId = dto.DealerId,
                     ChassisNumber = dto.ChassisNumber ?? string.Empty,
                     BrandId = dto.BrandId,
                     ModelId = dto.ModelId,
@@ -278,6 +279,7 @@ namespace vehicle_management_backend.Controllers
                 }
 
                 vehicle.RegNo = dto.RegNo;
+                vehicle.DealerId = dto.DealerId;
                 vehicle.ChassisNumber = dto.ChassisNumber;
                 vehicle.BrandId = dto.BrandId;
                 vehicle.ModelId = dto.ModelId;
@@ -416,6 +418,8 @@ namespace vehicle_management_backend.Controllers
                         ModelId = v.ModelId,
                         BrandName = vehicleBrand?.BrandName ?? "Unknown",
                         ModelName = vehicleModel?.ModelName ?? "Unknown",
+                        DealerId = v.DealerId,
+                        DealerName = v.Dealer?.Name ?? "Unknown",
                         VehicleType = v.VehicleType.ToString(),
                         FuelType = v.FuelType.ToString(),
                         Transmission = v.Transmission.ToString(),

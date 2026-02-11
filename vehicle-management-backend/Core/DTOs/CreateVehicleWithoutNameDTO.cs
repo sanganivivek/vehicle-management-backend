@@ -5,7 +5,9 @@ namespace vehicle_management_backend.Core.DTOs
     {
         [Required]
         public string RegNo { get; set; } = string.Empty;
-        
+        [Required]
+        public int? DealerId { get; set; }
+
         [Required]
         public string ChassisNumber { get; set; } = string.Empty;
 
