@@ -14,7 +14,7 @@ namespace vehicle_management_backend.Application.Services.Implementations
             _customerRepository = customerRepository;
         }
 
-        public async Task<IEnumerable<Customer>> GetAllDealersAsync()
+        public async Task<IEnumerable<Customer>> GetAllCustomerAsync()
         {
             return await _customerRepository.GetAllAsync();
         }

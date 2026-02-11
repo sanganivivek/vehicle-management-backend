@@ -8,7 +8,7 @@ namespace vehicle_management_backend.Core.DTOs
         [JsonPropertyName("name")]
         public string Name { get; set; }
 
-        [JsonPropertyName("Email")]
+        [JsonPropertyName("email")]
         public string Email { get; set; }
 
         [JsonPropertyName("contactNo")]
