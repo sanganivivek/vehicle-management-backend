@@ -6,9 +6,12 @@ namespace vehicle_management_backend.Application.Services.Implementations
     public class VehicleService : IVehicleService
     {
         private readonly IVehicleRepository _vehicleRepository;
-        public VehicleService(IVehicleRepository vehicleRepository)
+        private readonly IActivityLogService _activityLogService;
+        
+        public VehicleService(IVehicleRepository vehicleRepository, IActivityLogService activityLogService)
         {
             _vehicleRepository = vehicleRepository;
+            _activityLogService = activityLogService;
         }
         public async Task<IList<VehicleMaster>> GetAllAsync()
         {
@@ -34,14 +37,21 @@ namespace vehicle_management_backend.Application.Services.Implementations
         public async Task CreateAsync(VehicleMaster vehicle)
         {
             await _vehicleRepository.AddAsync(vehicle);
+            await _activityLogService.LogCreateAsync($"Created new Vehicle '{vehicle.RegNo}'");
         }
         public async Task UpdateAsync(VehicleMaster vehicle)
         {
             await _vehicleRepository.UpdateAsync(vehicle);
+            await _activityLogService.LogUpdateAsync($"Updated Vehicle '{vehicle.RegNo}'");
         }
         public async Task DeleteAsync(Guid id)
         {
+            var vehicle = await _vehicleRepository.GetByIdAsync(id);
             await _vehicleRepository.DeleteAsync(id);
+            if (vehicle != null)
+            {
+                await _activityLogService.LogDeleteAsync($"Deleted Vehicle '{vehicle.RegNo}'");
+            }
         }
         
         // Dashboard Statistics

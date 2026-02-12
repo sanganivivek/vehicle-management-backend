@@ -8,10 +8,12 @@ namespace vehicle_management_backend.Application.Services.Implementations
     public class DealerService : IDealerService
     {
         private readonly IDealerRepository _dealerRepository;
+        private readonly IActivityLogService _activityLogService;
 
-        public DealerService(IDealerRepository dealerRepository)
+        public DealerService(IDealerRepository dealerRepository, IActivityLogService activityLogService)
         {
             _dealerRepository = dealerRepository;
+            _activityLogService = activityLogService;
         }
 
         public async Task<IEnumerable<Dealer>> GetAllDealersAsync()
@@ -40,7 +42,9 @@ namespace vehicle_management_backend.Application.Services.Implementations
                 CreatedDate = DateTime.Now
             };
 
-            return await _dealerRepository.AddAsync(dealer);
+            var result = await _dealerRepository.AddAsync(dealer);
+            await _activityLogService.LogCreateAsync($"Created new Dealer '{dealerDto.Name}'");
+            return result;
         }
 
         public async Task<Dealer> UpdateDealerAsync(int id, UpdateDealerDTO dealerDto)
@@ -58,6 +62,7 @@ namespace vehicle_management_backend.Application.Services.Implementations
             existingDealer.Status = dealerDto.Status;
 
             await _dealerRepository.UpdateAsync(existingDealer);
+            await _activityLogService.LogUpdateAsync($"Updated Dealer '{dealerDto.Name}'");
             return existingDealer;
         }
 
@@ -67,6 +72,7 @@ namespace vehicle_management_backend.Application.Services.Implementations
             if (dealer == null) return false;
 
             await _dealerRepository.DeleteAsync(id);
+            await _activityLogService.LogDeleteAsync($"Deleted Dealer '{dealer.Name}'");
             return true;
         }
     }

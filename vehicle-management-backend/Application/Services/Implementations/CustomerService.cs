@@ -8,10 +8,12 @@ namespace vehicle_management_backend.Application.Services.Implementations
     public class CustomerService : ICustomerService
     {
         private readonly ICustomerRepository _customerRepository;
+        private readonly IActivityLogService _activityLogService;
 
-        public CustomerService(ICustomerRepository customerRepository)
+        public CustomerService(ICustomerRepository customerRepository, IActivityLogService activityLogService)
         {
             _customerRepository = customerRepository;
+            _activityLogService = activityLogService;
         }
 
         public async Task<IEnumerable<Customer>> GetAllCustomerAsync()
@@ -40,7 +42,9 @@ namespace vehicle_management_backend.Application.Services.Implementations
                 CreatedDate = DateTime.Now
             };
 
-            return await _customerRepository.AddAsync(customer);
+            var result = await _customerRepository.AddAsync(customer);
+            await _activityLogService.LogCreateAsync($"Created new Customer '{customerDto.Name}'");
+            return result;
         }
 
         public async Task<Customer> UpdateCustomerAsync(int id, UpdateCustomerDTO customerDto)
@@ -58,6 +62,7 @@ namespace vehicle_management_backend.Application.Services.Implementations
             existingCustomer.Status = customerDto.Status;
 
             await _customerRepository.UpdateAsync(existingCustomer);
+            await _activityLogService.LogUpdateAsync($"Updated Customer '{customerDto.Name}'");
             return existingCustomer;
         }
 
@@ -67,6 +72,7 @@ namespace vehicle_management_backend.Application.Services.Implementations
             if (customer == null) return false;
 
             await _customerRepository.DeleteAsync(id);
+            await _activityLogService.LogDeleteAsync($"Deleted Customer '{customer.Name}'");
             return true;
         }
     }

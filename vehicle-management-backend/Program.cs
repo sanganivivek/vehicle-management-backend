@@ -24,6 +24,7 @@ builder.Services.AddScoped<IDealerRepository, DealerRepository>();
 builder.Services.AddScoped<IDealerService, DealerService>();
 builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
 builder.Services.AddScoped<ICustomerService, CustomerService>();
+builder.Services.AddScoped<IActivityLogService, ActivityLogService>();
 
 // ===================== CONTROLLERS =====================
 builder.Services.AddControllers()

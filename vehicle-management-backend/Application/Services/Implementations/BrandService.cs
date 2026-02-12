@@ -8,10 +8,12 @@ namespace vehicle_management_backend.Application.Services.Implementations
     public class BrandService : IBrandService
     {
         private readonly IBrandRespository _brandRepository;
+        private readonly IActivityLogService _activityLogService;
 
-        public BrandService(IBrandRespository brandRepository)
+        public BrandService(IBrandRespository brandRepository, IActivityLogService activityLogService)
         {
             _brandRepository = brandRepository;
+            _activityLogService = activityLogService;
         }
 
         public async Task AddBrandAsync(BrandDTO dto)
@@ -25,6 +27,7 @@ namespace vehicle_management_backend.Application.Services.Implementations
                 Models = new List<Model>()
             };
             await _brandRepository.AddAsync(brand);
+            await _activityLogService.LogCreateAsync($"Created new Brand '{dto.BrandName}'");
         }
 
         public async Task<List<BrandDTO>> GetBrandsAsync()
@@ -53,12 +56,18 @@ namespace vehicle_management_backend.Application.Services.Implementations
                 brand.BrandCode = dto.BrandCode;
                 brand.IsActive = dto.IsActive;
                 await _brandRepository.UpdateAsync(brand);
+                await _activityLogService.LogUpdateAsync($"Updated Brand '{dto.BrandName}'");
             }
         }
 
         public async Task DeleteBrandAsync(Guid id)
         {
+            var brand = await _brandRepository.GetByIdAsync(id);
             await _brandRepository.DeleteAsync(id);
+            if (brand != null)
+            {
+                await _activityLogService.LogDeleteAsync($"Deleted Brand '{brand.BrandName}'");
+            }
         }
     }
 }
