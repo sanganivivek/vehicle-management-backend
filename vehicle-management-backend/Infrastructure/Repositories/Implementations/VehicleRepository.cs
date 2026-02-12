@@ -105,6 +105,7 @@ namespace vehicle_management_backend.Infrastructure.Repositories.Implementations
             return await _context.Vehicles
                 .Include(v => v.Brand)
                 .Include(v => v.Model)
+                .Include(v => v.Dealer)
                 .FirstOrDefaultAsync(v => v.RegNo == regNo);
         }
 
