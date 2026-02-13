@@ -25,6 +25,9 @@ namespace vehicle_management_backend.Core.DTOs
         public string? VehicleColour { get; set; }
         public int YearOfManufacture { get; set; }
         
+        [Range(0, double.MaxValue)]
+        public decimal OneDayRate { get; set; }
+        
         public string? EngineNumber { get; set; }
         public string? InsurancePolicyNumber { get; set; }
         public DateTime? InsurancePolicyExpiryDate { get; set; }

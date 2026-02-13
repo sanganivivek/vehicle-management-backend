@@ -26,6 +26,7 @@ namespace vehicle_management_backend.Core.Models
         public int SeatingCapacity { get; set; }
         public string? VehicleColour { get; set; }
         public int YearOfManufacture { get; set; }
+        public decimal OneDayRate { get; set; }
         
         public string? EngineNumber { get; set; }
         public string? InsurancePolicyNumber { get; set; }

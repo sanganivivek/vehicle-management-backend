@@ -88,6 +88,7 @@ namespace vehicle_management_backend.Controllers
                     Transmission = dto.Transmission,
                     SeatingCapacity = dto.SeatingCapacity,
                     VehicleColour = dto.VehicleColour,
+                    OneDayRate = dto.OneDayRate,
                     EngineNumber = dto.EngineNumber,
                     InsurancePolicyNumber = dto.InsurancePolicyNumber,
                     InsurancePolicyExpiryDate = dto.InsurancePolicyExpiryDate,
@@ -141,6 +142,7 @@ namespace vehicle_management_backend.Controllers
                         SeatingCapacity = v.SeatingCapacity,
                         VehicleColour = v.VehicleColour,
                         YearOfManufacture = v.YearOfManufacture,
+                        OneDayRate = v.OneDayRate,
                         EngineNumber = v.EngineNumber,
                         InsurancePolicyNumber = v.InsurancePolicyNumber,
                         InsurancePolicyExpiryDate = v.InsurancePolicyExpiryDate,
@@ -212,6 +214,7 @@ namespace vehicle_management_backend.Controllers
                     SeatingCapacity = vehicle.SeatingCapacity,
                     VehicleColour = vehicle.VehicleColour,
                     YearOfManufacture = vehicle.YearOfManufacture,
+                    OneDayRate = vehicle.OneDayRate,
                     EngineNumber = vehicle.EngineNumber,
                     InsurancePolicyNumber = vehicle.InsurancePolicyNumber,
                     InsurancePolicyExpiryDate = vehicle.InsurancePolicyExpiryDate,
@@ -293,6 +296,7 @@ namespace vehicle_management_backend.Controllers
                 vehicle.Transmission = dto.Transmission;
                 vehicle.SeatingCapacity = dto.SeatingCapacity;
                 vehicle.VehicleColour = dto.VehicleColour;
+                vehicle.OneDayRate = dto.OneDayRate;
                 vehicle.EngineNumber = dto.EngineNumber;
                 vehicle.InsurancePolicyNumber = dto.InsurancePolicyNumber;
                 vehicle.InsurancePolicyExpiryDate = dto.InsurancePolicyExpiryDate;
@@ -430,6 +434,7 @@ namespace vehicle_management_backend.Controllers
                         SeatingCapacity = v.SeatingCapacity,
                         VehicleColour = v.VehicleColour,
                         YearOfManufacture = v.YearOfManufacture,
+                        OneDayRate = v.OneDayRate,
                         EngineNumber = v.EngineNumber,
                         InsurancePolicyNumber = v.InsurancePolicyNumber,
                         InsurancePolicyExpiryDate = v.InsurancePolicyExpiryDate,
@@ -505,6 +510,7 @@ namespace vehicle_management_backend.Controllers
                     Transmission = dto.Transmission,
                     SeatingCapacity = dto.SeatingCapacity,
                     VehicleColour = dto.VehicleColour,
+                    OneDayRate = dto.OneDayRate,
                     EngineNumber = dto.EngineNumber,
                     InsurancePolicyNumber = dto.InsurancePolicyNumber,
                     InsurancePolicyExpiryDate = dto.InsurancePolicyExpiryDate,
