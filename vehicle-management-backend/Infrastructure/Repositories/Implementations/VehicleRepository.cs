@@ -37,7 +37,7 @@ namespace vehicle_management_backend.Infrastructure.Repositories.Implementations
 
             // Filter by Status
             if (status.HasValue)
-            {
+            {  
                 query = query.Where(v => v.CurrentStatus == status.Value);
             }
 
