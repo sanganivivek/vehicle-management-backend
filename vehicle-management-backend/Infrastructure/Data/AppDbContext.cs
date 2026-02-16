@@ -14,6 +14,7 @@ namespace vehicle_management_backend.Infrastructure.Data
         public DbSet<ActivityLog> ActivityLogs { get; set; }
         public DbSet<Dealer> Dealers { get; set; }
         public DbSet<Customer> Customers { get; set; }
+        public DbSet<Booking> Bookings { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -32,6 +33,25 @@ namespace vehicle_management_backend.Infrastructure.Data
                 .WithMany()
                 .HasForeignKey(v => v.ModelId)
                 .OnDelete(DeleteBehavior.Restrict); // Changed from Cascade to Restrict
+
+            // Booking Relationships
+            modelBuilder.Entity<Booking>()
+                .HasOne(b => b.Vehicle)
+                .WithMany()
+                .HasForeignKey(b => b.VehicleId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Booking>()
+                .HasOne(b => b.Dealer)
+                .WithMany()
+                .HasForeignKey(b => b.DealerId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Booking>()
+                .HasOne(b => b.Customer)
+                .WithMany()
+                .HasForeignKey(b => b.CustomerId)
+                .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }

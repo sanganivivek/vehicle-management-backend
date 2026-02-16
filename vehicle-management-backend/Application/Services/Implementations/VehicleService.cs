@@ -18,9 +18,9 @@ namespace vehicle_management_backend.Application.Services.Implementations
             return await _vehicleRepository.GetAllAsync();
         }
 
-        public async Task<(IList<VehicleMaster> Items, int TotalCount)> GetVehiclesAsync(string? search, string? brand, int? status, string? sortBy, string? sortOrder, int page, int pageSize)
+        public async Task<(IList<VehicleMaster> Items, int TotalCount)> GetVehiclesAsync(string? search, string? brand, int? status, bool? isActive, string? sortBy, string? sortOrder, int page, int pageSize)
         {
-            var result = await _vehicleRepository.GetVehiclesAsync(search, brand, status, sortBy, sortOrder, page, pageSize);
+            var result = await _vehicleRepository.GetVehiclesAsync(search, brand, status, isActive, sortBy, sortOrder, page, pageSize);
             return (result.Items, result.TotalCount);
         }
         

@@ -4,7 +4,7 @@ namespace vehicle_management_backend.Application.Services.Interfaces
     public interface IVehicleService
     {
         Task<IList<VehicleMaster>> GetAllAsync();
-        Task<(IList<VehicleMaster> Items, int TotalCount)> GetVehiclesAsync(string? search, string? brand, int? status, string? sortBy, string? sortOrder, int page, int pageSize);
+        Task<(IList<VehicleMaster> Items, int TotalCount)> GetVehiclesAsync(string? search, string? brand, int? status, bool? isActive, string? sortBy, string? sortOrder, int page, int pageSize);
         Task<VehicleMaster?> GetByIdAsync(Guid id);
         Task<VehicleMaster?> GetByRegNoAsync(string regNo);
         Task CreateAsync(VehicleMaster vehicle);

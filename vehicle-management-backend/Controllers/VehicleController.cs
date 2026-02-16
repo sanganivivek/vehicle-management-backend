@@ -116,12 +116,13 @@ namespace vehicle_management_backend.Controllers
             }
         }
         [HttpGet]
-        public async Task<IActionResult> GetAll([FromQuery] string? search, [FromQuery] string? brand, [FromQuery] int? status, [FromQuery] string? sortBy, [FromQuery] string? sortOrder, [FromQuery] int page = 1, [FromQuery] int pageSize = 10)
+        [HttpGet]
+        public async Task<IActionResult> GetAll([FromQuery] string? search, [FromQuery] string? brand, [FromQuery] int? status, [FromQuery] bool? isActive, [FromQuery] string? sortBy, [FromQuery] string? sortOrder, [FromQuery] int page = 1, [FromQuery] int pageSize = 10)
         {
             try
             {
                // Call Optimized Service Method
-               var (vehicles, totalCount) = await _vehicleService.GetVehiclesAsync(search, brand, status, sortBy, sortOrder, page, pageSize);
+               var (vehicles, totalCount) = await _vehicleService.GetVehiclesAsync(search, brand, status, isActive, sortBy, sortOrder, page, pageSize);
 
                var totalPages = (int)Math.Ceiling((double)totalCount / pageSize);
 

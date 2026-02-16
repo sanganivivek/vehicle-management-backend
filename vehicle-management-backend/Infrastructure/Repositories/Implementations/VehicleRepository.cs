@@ -27,7 +27,7 @@ namespace vehicle_management_backend.Infrastructure.Repositories.Implementations
         }
 
         // 1.1 GET VEHICLES WITH PAGINATION/FILTERING
-        public async Task<(List<VehicleMaster> Items, int TotalCount)> GetVehiclesAsync(string? search, string? brand, int? status, string? sortBy, string? sortOrder, int page, int pageSize)
+        public async Task<(List<VehicleMaster> Items, int TotalCount)> GetVehiclesAsync(string? search, string? brand, int? status, bool? isActive, string? sortBy, string? sortOrder, int page, int pageSize)
         {
             var query = _context.Vehicles
                 .Include(v => v.Brand)
@@ -39,6 +39,12 @@ namespace vehicle_management_backend.Infrastructure.Repositories.Implementations
             if (status.HasValue)
             {  
                 query = query.Where(v => v.CurrentStatus == status.Value);
+            }
+
+            // Filter by IsActive
+            if (isActive.HasValue)
+            {
+                query = query.Where(v => v.IsActive == isActive.Value);
             }
 
             // Filter by Brand (Name)
