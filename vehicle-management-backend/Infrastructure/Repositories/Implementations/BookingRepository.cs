@@ -75,5 +75,15 @@ namespace vehicle_management_backend.Infrastructure.Repositories.Implementations
 
             return !await query.AnyAsync();
         }
+
+        public async Task<bool> IsVehicleBusyNow(Guid vehicleId)
+        {
+            var currentTime = DateTime.UtcNow;
+            return await _context.Bookings.AnyAsync(b => 
+                b.VehicleId == vehicleId &&
+                b.Status == 1 && // confirmed
+                b.StartDate <= currentTime && 
+                b.EndDate >= currentTime);
+        }
     }
 }

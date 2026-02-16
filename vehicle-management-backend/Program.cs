@@ -27,6 +27,7 @@ builder.Services.AddScoped<ICustomerService, CustomerService>();
 builder.Services.AddScoped<IActivityLogService, ActivityLogService>();
 builder.Services.AddScoped<IBookingRepository, BookingRepository>();
 builder.Services.AddScoped<IBookingService, BookingService>();
+builder.Services.AddHostedService<vehicle_management_backend.Infrastructure.Services.VehicleStatusUpdater>();
 
 
 // ===================== CONTROLLERS =====================

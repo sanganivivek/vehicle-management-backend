@@ -4,6 +4,8 @@ using vehicle_management_backend.Application.Services.Interfaces;
 using vehicle_management_backend.Core.DTOs;
 using vehicle_management_backend.Core.Models;
 using vehicle_management_backend.Infrastructure.Data;
+using vehicle_management_backend.Infrastructure.Repositories.Interfaces;
+using vehicle_management_backend.Core.Enums;
 namespace vehicle_management_backend.Controllers
 {
     [ApiController]
@@ -13,12 +15,14 @@ namespace vehicle_management_backend.Controllers
         private readonly IVehicleService _vehicleService;
         private readonly IBrandService _brandService;
         private readonly IModelService _modelService;
+        private readonly IBookingRepository _bookingRepository;
         private readonly AppDbContext _context;
-        public VehicleController(IVehicleService vehicleService, IBrandService brandService, IModelService modelService, AppDbContext context)
+        public VehicleController(IVehicleService vehicleService, IBrandService brandService, IModelService modelService, IBookingRepository bookingRepository, AppDbContext context)
         {
             _vehicleService = vehicleService;
             _brandService = brandService;
             _modelService = modelService;
+            _bookingRepository = bookingRepository;
             _context = context;
         }
         [HttpGet("test")]
@@ -375,6 +379,40 @@ namespace vehicle_management_backend.Controllers
                 return StatusCode(500, new { error = ex.Message });
             }
         }
+        [HttpPut("set-maintenance/{id}")]
+        public async Task<IActionResult> SetMaintenanceStatus(Guid id, [FromQuery] bool inMaintenance)
+        {
+            VehicleMaster? vehicle = null;
+            if (Guid.TryParse(id.ToString(), out Guid vehicleId))
+            {
+                vehicle = await _vehicleService.GetByIdAsync(vehicleId);
+            }
+            // If checking by RegNo is needed, handled by TryParse failure, but method signature expects Guid. 
+            // The route {id} might receive a string, but the action argument is Guid. 
+            // If the frontend sends a GUID string, it binds correctly.
+            
+            if (vehicle == null) return NotFound();
+
+            if (inMaintenance)
+            {
+                // Check if vehicle has active bookings before sending to maintenance
+                bool hasActiveBooking = await _bookingRepository.IsVehicleBusyNow(id); 
+                if (hasActiveBooking) 
+                {
+                    return BadRequest("Cannot move to maintenance: Vehicle is currently rented.");
+                }
+                vehicle.CurrentStatus = (int)VehicleStatus.Inmaintance;
+            }
+            else
+            {
+                // Bringing back from maintenance
+                vehicle.CurrentStatus = (int)VehicleStatus.Available;
+            }
+
+            await _vehicleService.UpdateAsync(vehicle);
+            return Ok(new { Message = $"Vehicle status updated to {(inMaintenance ? "In Maintenance" : "Available")}" });
+        }
+
         [HttpGet("dashboard")]
         public async Task<IActionResult> GetDashboardData()
         {

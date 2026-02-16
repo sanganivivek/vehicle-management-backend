@@ -12,5 +12,6 @@ namespace vehicle_management_backend.Infrastructure.Repositories.Interfaces
         
         // Additional useful methods
         Task<bool> IsVehicleAvailableAsync(Guid vehicleId, DateTime startDate, DateTime endDate, Guid? excludeBookingId = null);
+        Task<bool> IsVehicleBusyNow(Guid vehicleId);
     }
 }
