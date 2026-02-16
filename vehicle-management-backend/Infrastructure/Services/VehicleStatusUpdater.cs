@@ -19,73 +19,79 @@ namespace vehicle_management_backend.Infrastructure.Services
             _logger = logger;
         }
 
+        // This function runs automatically in the background
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             while (!stoppingToken.IsCancellationRequested)
             {
-                try
-                {
-                    await UpdateVehicleStatusesAsync();
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex, "Error updating vehicle statuses");
-                }
-
-                // Run every 5 minutes (adjust as needed)
-                await Task.Delay(TimeSpan.FromMinutes(5), stoppingToken);
+                await UpdateStatusesAsync();
+                // Wait 1 minute before checking again
+                await Task.Delay(TimeSpan.FromMinutes(1), stoppingToken);
             }
         }
 
-        private async Task UpdateVehicleStatusesAsync()
+        private async Task UpdateStatusesAsync()
         {
             using (var scope = _serviceProvider.CreateScope())
             {
                 var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-                var currentTime = DateTime.UtcNow;
+                var currentTime = DateTime.UtcNow; // Uses Universal Time (UTC)
 
-                // 1. Find Vehicles that SHOULD be Rented (Active Confirmed Booking)
-                // Logic: Valid Booking exists NOW, but Vehicle is not marked Rented
+                // ---------------------------------------------------------
+                // STEP 1: CHECK GUESTS OUT (Complete the Bookings)
+                // ---------------------------------------------------------
+                var finishedBookings = await dbContext.Bookings
+                    .Where(b => b.Status == 1 && b.EndDate < currentTime) // Status 1 = Confirmed
+                    .ToListAsync();
+
+                if (finishedBookings.Any())
+                {
+                    foreach (var booking in finishedBookings)
+                    {
+                        booking.Status = 2; // Change Status to 2 (Completed)
+                    }
+                    await dbContext.SaveChangesAsync(); // Save this change to DB
+                }
+
+                // ---------------------------------------------------------
+                // STEP 2: UPDATE ROOM STATUS (Update Vehicle Availability)
+                // ---------------------------------------------------------
+
+                // A. If a booking is active NOW, make vehicle RENTED
                 var vehiclesToRent = await dbContext.Bookings
-                    .Where(b => b.Status == 1 // Confirmed
-                             && b.StartDate <= currentTime 
-                             && b.EndDate >= currentTime
-                             && b.Vehicle != null
-                             && b.Vehicle.CurrentStatus != (int)VehicleStatus.Rented
-                             && b.Vehicle.CurrentStatus != (int)VehicleStatus.Inmaintance) // Don't override Maintenance
+                    .Where(b => b.Status == 1
+                             && b.StartDate <= currentTime
+                             && b.EndDate >= currentTime)
                     .Select(b => b.Vehicle)
                     .Distinct()
                     .ToListAsync();
 
-                if (vehiclesToRent.Any())
+                foreach (var vehicle in vehiclesToRent)
                 {
-                    foreach (var vehicle in vehiclesToRent)
+                    if (vehicle != null && vehicle.CurrentStatus == (int)VehicleStatus.Available)
                     {
-                        if(vehicle != null) vehicle.CurrentStatus = (int)VehicleStatus.Rented;
+                        vehicle.CurrentStatus = (int)VehicleStatus.Rented;
                     }
-                    _logger.LogInformation($"Marking {vehiclesToRent.Count} vehicles as Rented.");
                 }
 
-                // 2. Find Vehicles that SHOULD be Available (Booking Expired/Completed)
-                // Logic: Vehicle is 'Rented', but NO active booking exists for it right now
-                // Note: We perform this check on vehicles currently marked 'Rented' (1)
+                // B. If a vehicle is Rented but has NO active booking, make it AVAILABLE
                 var rentedVehicles = await dbContext.Vehicles
                     .Where(v => v.CurrentStatus == (int)VehicleStatus.Rented)
                     .ToListAsync();
 
                 foreach (var vehicle in rentedVehicles)
                 {
-                    // Check if this vehicle has any active booking right now
-                    bool hasActiveBooking = await dbContext.Bookings
-                        .AnyAsync(b => b.VehicleId == vehicle.VehicleId 
+                    // Is there anyone currently using this car?
+                    bool isBusy = await dbContext.Bookings
+                        .AnyAsync(b => b.VehicleId == vehicle.VehicleId
                                     && b.Status == 1 // Confirmed
-                                    && b.StartDate <= currentTime 
+                                    && b.StartDate <= currentTime
                                     && b.EndDate >= currentTime);
 
-                    if (!hasActiveBooking)
+                    // If nobody is using it, mark it Available
+                    if (!isBusy)
                     {
                         vehicle.CurrentStatus = (int)VehicleStatus.Available;
-                        _logger.LogInformation($"Marking vehicle {vehicle.RegNo} as Available (Booking ended).");
                     }
                 }
 

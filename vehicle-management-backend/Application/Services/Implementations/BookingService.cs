@@ -91,6 +91,9 @@ namespace vehicle_management_backend.Application.Services.Implementations
             };
 
             await _bookingRepository.AddAsync(booking);
+            
+            // Update Vehicle Status immediately
+            await UpdateVehicleStatusAsync(booking.VehicleId);
 
             // Return DTO with loaded relations (might need to fetch again or manually map knowns)
             // For simplicity, returning what we have, knowing relations might be null in local 'booking' object
@@ -106,6 +109,8 @@ namespace vehicle_management_backend.Application.Services.Implementations
         {
             var booking = await _bookingRepository.GetByIdAsync(id);
             if (booking == null) return null;
+
+            var oldVehicleId = booking.VehicleId;
 
              // Update Validation
              if (dto.VehicleId != Guid.Empty && dto.VehicleId != booking.VehicleId)
@@ -166,6 +171,15 @@ namespace vehicle_management_backend.Application.Services.Implementations
 
             await _bookingRepository.UpdateAsync(booking);
             
+            // Update Status for Current Vehicle
+            await UpdateVehicleStatusAsync(booking.VehicleId);
+            
+            // If vehicle was changed, update the old vehicle too
+            if (oldVehicleId != booking.VehicleId)
+            {
+                await UpdateVehicleStatusAsync(oldVehicleId);
+            }
+            
             var updatedBooking = await _bookingRepository.GetByIdAsync(id);
             return MapToDTO(updatedBooking!);
         }
@@ -175,7 +189,12 @@ namespace vehicle_management_backend.Application.Services.Implementations
             var booking = await _bookingRepository.GetByIdAsync(id);
             if (booking == null) return false;
 
+            var vehicleId = booking.VehicleId;
+
             await _bookingRepository.DeleteAsync(id);
+            
+            await UpdateVehicleStatusAsync(vehicleId);
+
             return true;
         }
 
@@ -212,6 +231,50 @@ namespace vehicle_management_backend.Application.Services.Implementations
                 3 => "Cancelled",
                 _ => "Unknown"
             };
+        }
+
+
+        private async Task UpdateVehicleStatusAsync(Guid vehicleId)
+        {
+            var vehicle = await _vehicleRepository.GetByIdAsync(vehicleId);
+            if (vehicle == null) return;
+
+            bool isBusy = await _bookingRepository.IsVehicleBusyNow(vehicleId);
+
+            int currentStatus = vehicle.CurrentStatus;
+            int newStatus = currentStatus;
+
+            // Mapping:
+            // Busy -> Rented (1)
+            // Not Busy -> Available (0)
+
+            if (isBusy)
+            {
+                // If busy, it MUST be marked Rented.
+                // We transition from Available (0) to Rented (1).
+                // If it is InMaintenance (2), generally maintenance blocks bookings, 
+                // but if a confirmed booking forces it, we assume Rented? 
+                // Let's stay safe and only flip Available -> Rented for now to avoid overriding Maintenance accidentally.
+                if (currentStatus == (int)vehicle_management_backend.Core.Enums.VehicleStatus.Available)
+                {
+                    newStatus = (int)vehicle_management_backend.Core.Enums.VehicleStatus.Rented;
+                }
+            }
+            else
+            {
+                // If NOT busy
+                // If Rented -> Available.
+                if (currentStatus == (int)vehicle_management_backend.Core.Enums.VehicleStatus.Rented)
+                {
+                    newStatus = (int)vehicle_management_backend.Core.Enums.VehicleStatus.Available;
+                }
+            }
+
+            if (newStatus != currentStatus)
+            {
+                vehicle.CurrentStatus = newStatus;
+                await _vehicleRepository.UpdateAsync(vehicle);
+            }
         }
     }
 }
