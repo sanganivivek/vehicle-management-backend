@@ -6,7 +6,7 @@ namespace vehicle_management_backend.Core.Models
     public class Booking
     {
         [Key]
-        public Guid BookingId { get; set; }
+        public Guid BookingId { get; set; } = Guid.NewGuid();
 
         [Required]
         public Guid VehicleId { get; set; }

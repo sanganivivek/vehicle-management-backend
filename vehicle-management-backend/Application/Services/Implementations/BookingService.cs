@@ -107,7 +107,7 @@ namespace vehicle_management_backend.Application.Services.Implementations
             var booking = await _bookingRepository.GetByIdAsync(id);
             if (booking == null) return null;
 
-            // Update Validation
+             // Update Validation
              if (dto.VehicleId != Guid.Empty && dto.VehicleId != booking.VehicleId)
             {
                  // Logic to change vehicle if needed
