@@ -42,73 +42,37 @@ namespace vehicle_management_backend.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAll([FromQuery] string? search, [FromQuery] int page = 1, [FromQuery] int pageSize = 10, [FromQuery] string? sortBy = null, [FromQuery] string? sortOrder = "asc")
+        public async Task<IActionResult> GetAll([FromQuery] string? search, [FromQuery] Guid? brandId = null, [FromQuery] int page = 1, [FromQuery] int pageSize = 10, [FromQuery] string? sortBy = null, [FromQuery] string? sortOrder = "asc")
         {
             try
             {
-                var models = await _modelService.GetModelsAsync();
+                // Call the optimized service method
+                var (pagedModels, totalCount) = await _modelService.GetPagedModelsAsync(search, brandId, page, pageSize, sortBy, sortOrder);
+                
+                // Fetch all brands only if needed for display (to populate BrandName)
+                // Note: ideally we would Include(b => b.Brand) in the repo, but to minimize changes we fetch brands here.
+                // However, optimization: if we filtered by brandId, we only need that one brand name.
+                // If not, we still might need all brands to map names.
+                // A better approach for list view is to have BrandName validation in frontend or minimal fetch.
+                // But let's keep existing behavior of showing BrandName.
+                
                 var brands = await _brandService.GetBrandsAsync();
                 
-                // 1. Join Models with Brands (Models don't store BrandName directly)
-                var dtos = models.Select(m =>
+                // Map BrandName to the DTOs
+                foreach (var model in pagedModels)
                 {
-                    var brand = brands.FirstOrDefault(b => b.BrandId == m.BrandId);
-                    return new ModelDTO
-                    {
-                        ModelId = m.ModelId,
-                        ModelCode = m.ModelCode,
-                        ModelName = m.ModelName,
-                        Description = m.Description,
-                        BrandId = m.BrandId,
-                        BrandName = brand?.BrandName ?? "Unknown",
-                        BrandCode = brand?.BrandCode
-                    };
-                });
-
-                // 2. Filter
-                if (!string.IsNullOrEmpty(search))
-                {
-                    dtos = dtos.Where(m => 
-                        (m.ModelName?.Contains(search, StringComparison.OrdinalIgnoreCase) ?? false) || 
-                        (m.ModelCode?.Contains(search, StringComparison.OrdinalIgnoreCase) ?? false) ||
-                        (m.BrandName?.Contains(search, StringComparison.OrdinalIgnoreCase) ?? false)
-                    );
+                     var brand = brands.FirstOrDefault(b => b.BrandId == model.BrandId);
+                     model.BrandName = brand?.BrandName ?? "Unknown";
+                     model.BrandCode = brand?.BrandCode;
                 }
 
-                // 3. Sort
-                if (!string.IsNullOrEmpty(sortBy))
-                {
-                    switch (sortBy.ToLower())
-                    {
-                        case "brandname":
-                            dtos = sortOrder?.ToLower() == "desc" ? dtos.OrderByDescending(m => m.BrandName) : dtos.OrderBy(m => m.BrandName);
-                            break;
-                        case "modelname":
-                            dtos = sortOrder?.ToLower() == "desc" ? dtos.OrderByDescending(m => m.ModelName) : dtos.OrderBy(m => m.ModelName);
-                            break;
-                        case "modelcode":
-                            dtos = sortOrder?.ToLower() == "desc" ? dtos.OrderByDescending(m => m.ModelCode) : dtos.OrderBy(m => m.ModelCode);
-                            break;
-                        default:
-                            dtos = dtos.OrderBy(m => m.ModelName);
-                            break;
-                    }
-                }
-                else
-                {
-                    dtos = dtos.OrderBy(m => m.ModelName); // Default sort
-                }
-
-                // 4. Paginate
-                var totalCount = dtos.Count();
                 var totalPages = (int)Math.Ceiling((double)totalCount / pageSize);
-                var pagedData = dtos.Skip((page - 1) * pageSize).Take(pageSize).ToList();
 
                 return Ok(new
                 {
                     totalCount,
                     page,
-                    data = pagedData,
+                    data = pagedModels,
                     totalPages,
                     totalRecords = totalCount,
                     pageSize
