@@ -47,10 +47,17 @@ namespace vehicle_management_backend.Infrastructure.Repositories.Implementations
                 query = query.Where(v => v.IsActive == isActive.Value);
             }
 
-            // Filter by Brand (Name)
+            // Filter by Brand (Id or Name)
             if (!string.IsNullOrEmpty(brand))
             {
-                query = query.Where(v => v.Brand.BrandName == brand); 
+                if (Guid.TryParse(brand, out Guid brandId))
+                {
+                    query = query.Where(v => v.BrandId == brandId);
+                }
+                else
+                {
+                    query = query.Where(v => v.Brand.BrandName == brand);
+                }
             }
 
             // Filter by Search (RegNo or Chassis)
