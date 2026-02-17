@@ -102,5 +102,20 @@ namespace vehicle_management_backend.Application.Services.Implementations
                 await _activityLogService.LogDeleteAsync($"Deleted Model '{model.ModelName}'");
             }
         }
+
+        public async Task BulkCreateAsync(IEnumerable<CreateModelDTO> dtos)
+        {
+            var models = dtos.Select(dto => new Model
+            {
+                ModelId = Guid.NewGuid(),
+                BrandId = dto.BrandId,
+                ModelCode = dto.ModelCode,
+                ModelName = dto.Name,
+                Description = dto.Description
+            }).ToList();
+
+            await _modelRepository.BulkAddAsync(models);
+            await _activityLogService.LogCreateAsync($"Bulk created {models.Count} models");
+        }
     }
 }

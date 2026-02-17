@@ -12,5 +12,6 @@ namespace vehicle_management_backend.Application.Services.Interfaces
         Task CreateAsync(Model model);
         Task UpdateAsync(Guid id, CreateModelDTO dto);
         Task DeleteAsync(Guid id);
+        Task BulkCreateAsync(IEnumerable<CreateModelDTO> dtos);
     }
 }

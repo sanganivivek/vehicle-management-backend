@@ -96,5 +96,10 @@ namespace vehicle_management_backend.Infrastructure.Repositories.Implementations
                 await _context.SaveChangesAsync();
             }
         }
+        public async Task BulkAddAsync(IEnumerable<Model> models)
+        {
+            await _context.Models.AddRangeAsync(models);
+            await _context.SaveChangesAsync();
+        }
     }
 }

@@ -158,5 +158,25 @@ namespace vehicle_management_backend.Controllers
                 return BadRequest(new { error = ex.Message, innerException = ex.InnerException?.Message });
             }
         }
+        [HttpPost("bulk")]
+        public async Task<IActionResult> BulkCreate([FromBody] List<CreateModelDTO> dtos)
+        {
+            try
+            {
+                if (dtos == null || !dtos.Any())
+                    return BadRequest("No data provided.");
+
+                if (!ModelState.IsValid)
+                    return BadRequest(ModelState);
+
+                await _modelService.BulkCreateAsync(dtos);
+
+                return Ok(new { message = $"{dtos.Count} models created successfully" });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = ex.Message });
+            }
+        }
     }
 }

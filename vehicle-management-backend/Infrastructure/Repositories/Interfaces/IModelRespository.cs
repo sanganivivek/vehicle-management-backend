@@ -10,5 +10,6 @@ namespace vehicle_management_backend.Infrastructure.Repositories.Interfaces
         Task AddAsync(Model model);
         Task UpdateAsync(Model model);
         Task DeleteAsync(Guid id);
+        Task BulkAddAsync(IEnumerable<Model> models);
     }
 }
