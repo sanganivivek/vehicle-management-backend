@@ -29,13 +29,10 @@ namespace vehicle_management_backend.Application.Services.Implementations
                 ModelCode = m.ModelCode,
                 ModelName = m.ModelName,
                 Description = m.Description,
-                BrandId = m.BrandId
-                // Note: BrandName/BrandCode still needs to be populated if required by the UI. 
-                // The most efficient way is to Include(b => b.Brand) in repository. 
-                // For now, we'll fetching brands in Controller or Service if needed, or rely on client to know brand from context.
-                // However, the original controller code was joining in memory.
-                // To keep this service method pure, strictly mapping Model -> ModelDTO is best.
-                // If BrandName is absolutely required in the list, we should Fetch it here or in Repo.
+                BrandId = m.BrandId,
+                // Map data directly from the joined entity
+                BrandName = m.Brand?.BrandName ?? "Unknown",
+                BrandCode = m.Brand?.BrandCode
             }).ToList();
 
             return (dtos, result.TotalCount);

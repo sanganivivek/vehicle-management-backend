@@ -46,28 +46,13 @@ namespace vehicle_management_backend.Controllers
         {
             try
             {
-                // Call the optimized service method
+                // 1. Get the data (Service now handles the Brand Name mapping!)
                 var (pagedModels, totalCount) = await _modelService.GetPagedModelsAsync(search, brandId, page, pageSize, sortBy, sortOrder);
-                
-                // Fetch all brands only if needed for display (to populate BrandName)
-                // Note: ideally we would Include(b => b.Brand) in the repo, but to minimize changes we fetch brands here.
-                // However, optimization: if we filtered by brandId, we only need that one brand name.
-                // If not, we still might need all brands to map names.
-                // A better approach for list view is to have BrandName validation in frontend or minimal fetch.
-                // But let's keep existing behavior of showing BrandName.
-                
-                var brands = await _brandService.GetBrandsAsync();
-                
-                // Map BrandName to the DTOs
-                foreach (var model in pagedModels)
-                {
-                     var brand = brands.FirstOrDefault(b => b.BrandId == model.BrandId);
-                     model.BrandName = brand?.BrandName ?? "Unknown";
-                     model.BrandCode = brand?.BrandCode;
-                }
 
+                // 2. Calculate pages
                 var totalPages = (int)Math.Ceiling((double)totalCount / pageSize);
 
+                // 3. Return response
                 return Ok(new
                 {
                     totalCount,

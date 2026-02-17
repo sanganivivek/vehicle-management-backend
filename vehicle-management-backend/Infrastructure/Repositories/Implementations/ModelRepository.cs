@@ -24,7 +24,7 @@ namespace vehicle_management_backend.Infrastructure.Repositories.Implementations
 
         public async Task<(List<Model> Items, int TotalCount)> GetPagedAsync(string? search, Guid? brandId, int page, int pageSize, string? sortBy, string? sortOrder)
         {
-            var query = _context.Models.AsQueryable();
+            var query = _context.Models.Include(m => m.Brand).AsQueryable();
 
             // 1. Filter
             if (brandId.HasValue)
