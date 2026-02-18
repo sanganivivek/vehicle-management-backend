@@ -6,11 +6,11 @@ namespace vehicle_management_backend.Controllers
 {
     [ApiController]
     [Route("api/brands")]
-    public class BrandControllers : ControllerBase
+    public class Brand : ControllerBase
     {
         private readonly IBrandService _brandService;
 
-        public BrandControllers(IBrandService brandService)
+        public Brand(IBrandService brandService)
         {
             _brandService = brandService;
         }

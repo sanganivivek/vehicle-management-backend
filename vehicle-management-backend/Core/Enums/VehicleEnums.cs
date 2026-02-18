@@ -12,6 +12,7 @@ namespace vehicle_management_backend.Core.Enums
         Petrol,
         Diesel,
         CNG,
+        EV,
         E20
     }
 

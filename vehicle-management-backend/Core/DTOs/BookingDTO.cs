@@ -5,6 +5,8 @@ namespace vehicle_management_backend.Core.DTOs
         public Guid BookingId { get; set; }
         public Guid VehicleId { get; set; }
         public string VehicleName { get; set; } = string.Empty;
+        public string VehicleModel { get; set; } = string.Empty;
+        public string VehicleBrand { get; set; } = string.Empty;
         public string VehicleRegNo { get; set; } = string.Empty;
         
         public int DealerId { get; set; }

@@ -103,14 +103,6 @@ namespace vehicle_management_backend.Controllers
                 };
                 await _vehicleService.CreateAsync(vehicle);
 
-                _context.ActivityLogs.Add(new ActivityLog
-                {
-                    Message = $"New vehicle registered: {vehicle.RegNo}",
-                    Type = "success",
-                    CreatedAt = DateTime.UtcNow
-                });
-                await _context.SaveChangesAsync();
-
                 return Ok(new { vehicleId = vehicle.VehicleId, message = "Vehicle saved successfully" });
             }
             catch (Exception ex)
@@ -312,14 +304,6 @@ namespace vehicle_management_backend.Controllers
                 
                 await _vehicleService.UpdateAsync(vehicle);
                 
-                _context.ActivityLogs.Add(new ActivityLog
-                {
-                    Message = $"Vehicle updated: {vehicle.RegNo}",
-                    Type = "info", // Blue color in frontend
-                    CreatedAt = DateTime.UtcNow
-                });
-                await _context.SaveChangesAsync();
-                
                 Console.WriteLine($"Vehicle updated successfully: {vehicle.VehicleId}");
                 return Ok(new { message = "Vehicle updated successfully", vehicleId = vehicle.VehicleId });
             }
@@ -360,15 +344,6 @@ namespace vehicle_management_backend.Controllers
 
                 // 3. Perform the Delete
                 await _vehicleService.DeleteAsync(vId);
-
-                // 4. Log the Activity (BEFORE returning)
-                _context.ActivityLogs.Add(new ActivityLog
-                {
-                    Message = $"Vehicle deleted: {regNo}",
-                    Type = "warning",
-                    CreatedAt = DateTime.UtcNow
-                });
-                await _context.SaveChangesAsync();
 
                 // 5. Return success response
                 return NoContent();
