@@ -1,98 +1,99 @@
 ﻿using Moq;
-using Xunit;
-using vehicle_management_backend.Application.Services.Implementations;
-using vehicle_management_backend.Infrastructure.Repositories.Interfaces;
-using vehicle_management_backend.Core.Models;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using System;
+using vehicle_management_backend.Application.Services.Implementations;
+using vehicle_management_backend.Application.Services.Interfaces;
+using vehicle_management_backend.Core.Models;
+using vehicle_management_backend.Infrastructure.Repositories.Interfaces;
+using Xunit;
 
-public class VehicleServiceTests
+namespace TestProject1
 {
-    // 1. Define Mocks and the Service
-    private readonly Mock<IVehicleRepository> _mockRepo;
-    private readonly VehicleService _vehicleService;
-
-    public VehicleServiceTests()
+    public class VehicleServiceTests
     {
-        // 2. Initialize the Mock
-        _mockRepo = new Mock<IVehicleRepository>();
+        // 1. Define Mocks and the Service
+        private readonly Mock<IVehicleRepository> _vehicleRepositoryMock;
+        private readonly Mock<IActivityLogService> _activityLogServiceMock;
+        private readonly VehicleService _vehicleService;
 
-        // 3. Inject the Mock object into the Service
-        _vehicleService = new VehicleService(_mockRepo.Object);
-    }
-
-    [Fact]
-    public async Task GetAllAsync_ShouldReturnListOfVehicles()
-    {
-        // --- ARRANGE (Setup data) ---
-        var dummyVehicles = new List<VehicleMaster>
+        public VehicleServiceTests()
         {
-            // Removed VehicleName, using RegNo instead
-            new VehicleMaster { VehicleId = Guid.NewGuid(), RegNo = "GJ01AB0123" },
-            new VehicleMaster { VehicleId = Guid.NewGuid(), RegNo = "GJ01AB1234" }
-        };
+            // 2. Initialize the Mocks
+            _vehicleRepositoryMock = new Mock<IVehicleRepository>();
+            _activityLogServiceMock = new Mock<IActivityLogService>();
 
-        // Tell the mock: "When GetAllAsync is called, return this list"
-        _mockRepo.Setup(repo => repo.GetAllAsync())
-                 .ReturnsAsync(dummyVehicles);
+            // 3. Inject BOTH Mock objects into the Service Constructor
+            _vehicleService = new VehicleService(_vehicleRepositoryMock.Object, _activityLogServiceMock.Object);
+        }
 
-        // --- ACT (Call the method) ---
-        var result = await _vehicleService.GetAllAsync();
+        [Fact]
+        public async Task GetAllAsync_ShouldReturnListOfVehicles()
+        {
+            // --- ARRANGE (Setup data) ---
+            var dummyVehicles = new List<VehicleMaster>
+            {
+                new VehicleMaster { VehicleId = Guid.NewGuid(), RegNo = "GJ01AB0123" },
+                new VehicleMaster { VehicleId = Guid.NewGuid(), RegNo = "GJ01AB1234" }
+            };
 
-        // --- ASSERT (Verify results) ---
-        Assert.NotNull(result);
-        Assert.Equal(2, result.Count);
-        // Changed assertion to check RegNo instead of VehicleName
-        Assert.Equal("GJ01AB0123", result[0].RegNo);
-    }
+            // Tell the mock: "When GetAllAsync is called, return this list"
+            _vehicleRepositoryMock.Setup(repo => repo.GetAllAsync())
+                              .ReturnsAsync(dummyVehicles);
 
-    [Fact]
-    public async Task GetByIdAsync_ShouldReturnVehicle_WhenExists()
-    {
-        // --- ARRANGE ---
-        var vehicleId = Guid.NewGuid();
-        // Removed VehicleName, using RegNo instead
-        var dummyVehicle = new VehicleMaster { VehicleId = vehicleId, RegNo = "GJ-TEST-01" };
+            // --- ACT (Call the method) ---
+            var result = await _vehicleService.GetAllAsync();
 
-        _mockRepo.Setup(repo => repo.GetByIdAsync(vehicleId))
-                 .ReturnsAsync(dummyVehicle);
+            // --- ASSERT (Verify results) ---
+            Assert.NotNull(result);
+            Assert.Equal(2, result.Count);
+            Assert.Equal("GJ01AB0123", result[0].RegNo);
+        }
 
-        // --- ACT ---
-        var result = await _vehicleService.GetByIdAsync(vehicleId);
+        [Fact]
+        public async Task GetByIdAsync_ShouldReturnVehicle_WhenExists()
+        {
+            // --- ARRANGE ---
+            var vehicleId = Guid.NewGuid();
+            var dummyVehicle = new VehicleMaster { VehicleId = vehicleId, RegNo = "GJ-TEST-01" };
 
-        // --- ASSERT ---
-        Assert.NotNull(result);
-        Assert.Equal(vehicleId, result.VehicleId);
-        // Changed assertion to check RegNo instead of VehicleName
-        Assert.Equal("GJ-TEST-01", result.RegNo);
-    }
+            _vehicleRepositoryMock.Setup(repo => repo.GetByIdAsync(vehicleId))
+                              .ReturnsAsync(dummyVehicle);
 
-    [Fact]
-    public async Task CreateAsync_ShouldCallAddAsyncInRepository()
-    {
-        // --- ARRANGE ---
-        // Removed VehicleName, using RegNo instead
-        var newVehicle = new VehicleMaster { VehicleId = Guid.NewGuid(), RegNo = "GJ-NEW-01" };
+            // --- ACT ---
+            var result = await _vehicleService.GetByIdAsync(vehicleId);
 
-        // --- ACT ---
-        await _vehicleService.CreateAsync(newVehicle);
+            // --- ASSERT ---
+            Assert.NotNull(result);
+            Assert.Equal(vehicleId, result.VehicleId);
+            Assert.Equal("GJ-TEST-01", result.RegNo);
+        }
 
-        // --- ASSERT ---
-        // Verify that the repository's AddAsync method was called exactly once
-        _mockRepo.Verify(repo => repo.AddAsync(newVehicle), Times.Once);
-    }
+        [Fact]
+        public async Task CreateAsync_ShouldCallAddAsyncInRepository()
+        {
+            // --- ARRANGE ---
+            var newVehicle = new VehicleMaster { VehicleId = Guid.NewGuid(), RegNo = "GJ-NEW-01" };
 
-    [Fact]
-    public async Task DeleteAsync_ShouldCallDeleteAsyncInRepository()
-    {
-        // --- ARRANGE ---
-        var vehicleId = Guid.NewGuid();
+            // --- ACT ---
+            await _vehicleService.CreateAsync(newVehicle);
 
-        // --- ACT ---
-        await _vehicleService.DeleteAsync(vehicleId);
+            // --- ASSERT ---
+            // Verify that the repository's AddAsync method was called exactly once
+            _vehicleRepositoryMock.Verify(repo => repo.AddAsync(newVehicle), Times.Once);
+        }
 
-        // --- ASSERT ---
-        _mockRepo.Verify(repo => repo.DeleteAsync(vehicleId), Times.Once);
+        [Fact]
+        public async Task DeleteAsync_ShouldCallDeleteAsyncInRepository()
+        {
+            // --- ARRANGE ---
+            var vehicleId = Guid.NewGuid();
+
+            // --- ACT ---
+            await _vehicleService.DeleteAsync(vehicleId);
+
+            // --- ASSERT ---
+            _vehicleRepositoryMock.Verify(repo => repo.DeleteAsync(vehicleId), Times.Once);
+        }
     }
 }

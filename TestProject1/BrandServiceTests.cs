@@ -1,28 +1,34 @@
 ﻿using Moq;
-using Xunit;
-using vehicle_management_backend.Application.Services.Implementations;
-using vehicle_management_backend.Infrastructure.Repositories.Interfaces;
-using vehicle_management_backend.Core.Models;
-using vehicle_management_backend.Core.DTOs;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using System;
+using vehicle_management_backend;
+using vehicle_management_backend.Application.Services.Implementations;
+using vehicle_management_backend.Application.Services.Interfaces;
+using vehicle_management_backend.Core.DTOs;
+using vehicle_management_backend.Core.Models;
+using vehicle_management_backend.Infrastructure.Repositories.Interfaces;
+using Xunit;
 
 namespace TestProject1
 {
     public class BrandServiceTests
     {
         // 1. Define Mocks and the Service
-        private readonly Mock<IBrandRespository> _mockRepo; // Note: Uses your existing interface name with the typo
+        // Note: Using 'IBrandRespository' (matching the typo in your interface filename)
+        private readonly Mock<IBrandRespository> _brandRepositoryMock;
+        private readonly Mock<IActivityLogService> _activityLogServiceMock;
         private readonly BrandService _brandService;
 
         public BrandServiceTests()
         {
-            // 2. Initialize the Mock
-            _mockRepo = new Mock<IBrandRespository>();
+            // 2. Initialize the Mocks
+            _brandRepositoryMock = new Mock<IBrandRespository>();
+            _activityLogServiceMock = new Mock<IActivityLogService>();
 
-            // 3. Inject the Mock object into the Service
-            _brandService = new BrandService(_mockRepo.Object);
+            // 3. Inject BOTH Mock objects into the Service Constructor
+            // This fixes the error: "There is no argument given that corresponds to required parameter 'activityLogService'"
+            _brandService = new BrandService(_brandRepositoryMock.Object, _activityLogServiceMock.Object);
         }
 
         [Fact]
@@ -36,8 +42,8 @@ namespace TestProject1
             };
 
             // Setup the mock to return our dummy list
-            _mockRepo.Setup(repo => repo.GetAllAsync())
-                     .ReturnsAsync(dummyBrands);
+            _brandRepositoryMock.Setup(repo => repo.GetAllAsync())
+                              .ReturnsAsync(dummyBrands);
 
             // --- ACT ---
             var result = await _brandService.GetBrandsAsync();
@@ -62,8 +68,8 @@ namespace TestProject1
                 Models = new List<Model>()
             };
 
-            _mockRepo.Setup(repo => repo.GetByIdAsync(brandId))
-                     .ReturnsAsync(dummyBrand);
+            _brandRepositoryMock.Setup(repo => repo.GetByIdAsync(brandId))
+                              .ReturnsAsync(dummyBrand);
 
             // --- ACT ---
             var result = await _brandService.GetBrandByIdAsync(brandId);
@@ -78,7 +84,7 @@ namespace TestProject1
         public async Task AddBrandAsync_ShouldCallRepositoryAdd()
         {
             // --- ARRANGE ---
-            var newBrandDto = new BrandDTO
+            var newBrandDto = new CreateBrandDTO
             {
                 BrandName = "Tesla",
                 BrandCode = "TSLA",
@@ -86,11 +92,13 @@ namespace TestProject1
             };
 
             // --- ACT ---
+            // Note: Assuming AddBrandAsync accepts CreateBrandDTO or similar. 
+            // Adjust the type if your method signature uses a different DTO.
             await _brandService.AddBrandAsync(newBrandDto);
 
             // --- ASSERT ---
-            // Verify that the repository's AddAsync was called exactly once
-            _mockRepo.Verify(repo => repo.AddAsync(It.Is<Brand>(b =>
+            // Verify that the repository's AddAsync was called exactly once with the mapped entity
+            _brandRepositoryMock.Verify(repo => repo.AddAsync(It.Is<Brand>(b =>
                 b.BrandName == "Tesla" &&
                 b.BrandCode == "TSLA"
             )), Times.Once);
@@ -102,18 +110,20 @@ namespace TestProject1
             // --- ARRANGE ---
             var brandId = Guid.NewGuid();
             var existingBrand = new Brand { BrandId = brandId, BrandName = "Old", BrandCode = "OLD", Models = new List<Model>() };
+
+            // Assuming the Update DTO might be different, commonly UpdateBrandDTO or similar
             var updateDto = new BrandDTO { BrandName = "New", BrandCode = "NEW", IsActive = true };
 
             // Mock finding the existing brand
-            _mockRepo.Setup(repo => repo.GetByIdAsync(brandId))
-                     .ReturnsAsync(existingBrand);
+            _brandRepositoryMock.Setup(repo => repo.GetByIdAsync(brandId))
+                              .ReturnsAsync(existingBrand);
 
             // --- ACT ---
             await _brandService.UpdateBrandAsync(brandId, updateDto);
 
             // --- ASSERT ---
             // Verify UpdateAsync was called
-            _mockRepo.Verify(repo => repo.UpdateAsync(It.IsAny<Brand>()), Times.Once);
+            _brandRepositoryMock.Verify(repo => repo.UpdateAsync(It.IsAny<Brand>()), Times.Once);
         }
 
         [Fact]
@@ -126,7 +136,7 @@ namespace TestProject1
             await _brandService.DeleteBrandAsync(brandId);
 
             // --- ASSERT ---
-            _mockRepo.Verify(repo => repo.DeleteAsync(brandId), Times.Once);
+            _brandRepositoryMock.Verify(repo => repo.DeleteAsync(brandId), Times.Once);
         }
     }
 }
