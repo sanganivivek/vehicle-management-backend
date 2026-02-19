@@ -49,6 +49,7 @@ builder.Services.AddCors(options =>
         policy
             .WithOrigins(
                 "http://localhost:4200",
+                "http://192.168.1.2:8082",
                 "https://lively-ground-0b2406a1e.4.azurestaticapps.net"
             )
             .AllowAnyHeader()
@@ -82,7 +83,8 @@ if (enableSwagger)
 }
 
 // ===================== MIDDLEWARE =====================
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
+app.MapGet("/", () => "API Running from IIS");
 app.UseCors("AllowFrontend");
 app.UseAuthorization();
 app.MapControllers();

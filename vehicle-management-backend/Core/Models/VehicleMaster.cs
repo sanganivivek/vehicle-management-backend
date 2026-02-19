@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 namespace vehicle_management_backend.Core.Models
 {
     public class VehicleMaster
@@ -18,6 +19,9 @@ namespace vehicle_management_backend.Core.Models
         public int? DealerId { get; set; }
         public Dealer? Dealer { get; set; }
 
+        [Column(TypeName = "decimal(18,2)")]
+        public decimal OneDayRate { get; set; }
+
         // Enums and details
         public vehicle_management_backend.Core.Enums.VehicleType VehicleType { get; set; }
         public vehicle_management_backend.Core.Enums.FuelType FuelType { get; set; }
@@ -26,7 +30,7 @@ namespace vehicle_management_backend.Core.Models
         public int SeatingCapacity { get; set; }
         public string? VehicleColour { get; set; }
         public int YearOfManufacture { get; set; }
-        public decimal OneDayRate { get; set; }
+       
         
         public string? EngineNumber { get; set; }
         public string? InsurancePolicyNumber { get; set; }

@@ -52,6 +52,10 @@ namespace vehicle_management_backend.Infrastructure.Data
                 .WithMany()
                 .HasForeignKey(b => b.CustomerId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<VehicleMaster>()
+                .Property(p => p.OneDayRate)
+                .HasColumnType("decimal(18,2)"); // 18 digits total, 2 decimal places
         }
     }
 }
