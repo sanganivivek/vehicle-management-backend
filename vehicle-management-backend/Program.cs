@@ -44,17 +44,13 @@ builder.Services.AddEndpointsApiExplorer();
 // ===================== CORS (Single Policy) =====================
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowFrontend", policy =>
-    {
-        policy
-            .WithOrigins(
-                "http://localhost:4200",
-                "http://192.168.1.2:8082",
-                "https://lively-ground-0b2406a1e.4.azurestaticapps.net"
-            )
-            .AllowAnyHeader()
-            .AllowAnyMethod();
-    });
+    options.AddPolicy("AllowFrontend",
+        policy =>
+        {
+            policy.WithOrigins("http://localhost:8080", "http://192.168.1.2:8082") // Replace with your frontend IIS URL
+                  .AllowAnyHeader()
+                  .AllowAnyMethod();
+        });
 });
 
 // ===================== SWAGGER =====================
