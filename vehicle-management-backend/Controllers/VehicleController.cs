@@ -4,6 +4,7 @@ using vehicle_management_backend.Application.Services.Interfaces;
 using vehicle_management_backend.Core.DTOs;
 using vehicle_management_backend.Core.Models;
 using vehicle_management_backend.Infrastructure.Data;
+using Microsoft.EntityFrameworkCore;
 using vehicle_management_backend.Infrastructure.Repositories.Interfaces;
 using vehicle_management_backend.Core.Enums;
 namespace vehicle_management_backend.Controllers
@@ -29,6 +30,21 @@ namespace vehicle_management_backend.Controllers
         public IActionResult Test()
         {
             return Ok(new { message = "API is working", timestamp = DateTime.Now });
+        }
+
+        // Add the new temporary test database endpoint here:
+        [HttpGet("test-db")]
+        public async Task<IActionResult> TestDb()
+        {
+            try
+            {
+                var count = await _context.Vehicles.CountAsync();
+                return Ok(new { message = "Database connection successful", vehicleCount = count });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = "Database connection failed", details = ex.Message });
+            }
         }
         [HttpPost("simple")]
         public IActionResult CreateSimple()
