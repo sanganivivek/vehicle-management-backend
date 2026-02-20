@@ -47,7 +47,7 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowFrontend",
         policy =>
         {
-            policy.WithOrigins("http://localhost:8080", "http://192.168.1.2:8082") // Replace with your frontend IIS URL
+            policy.AllowAnyOrigin()
                   .AllowAnyHeader()
                   .AllowAnyMethod();
         });
@@ -80,8 +80,9 @@ if (enableSwagger)
 
 // ===================== MIDDLEWARE =====================
 //app.UseHttpsRedirection();
-app.MapGet("/", () => "API Running from IIS");
+app.UseRouting();
 app.UseCors("AllowFrontend");
 app.UseAuthorization();
+app.MapGet("/", () => "API Running from IIS");
 app.MapControllers();
 app.Run();
