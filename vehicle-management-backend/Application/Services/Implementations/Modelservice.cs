@@ -46,7 +46,6 @@ namespace vehicle_management_backend.Application.Services.Implementations
                 ModelId = m.ModelId,
                 ModelCode = m.ModelCode,
                 ModelName = m.ModelName,
-
                 Description = m.Description,
                 BrandId = m.BrandId
             }).ToList();
@@ -85,7 +84,6 @@ namespace vehicle_management_backend.Application.Services.Implementations
                 model.BrandId = dto.BrandId;
                 model.ModelCode = dto.ModelCode;
                 model.ModelName = dto.Name;
-
                 model.Description = dto.Description;
                 await _modelRepository.UpdateAsync(model);
                 await _activityLogService.LogUpdateAsync($"Updated Model '{dto.Name}'");
