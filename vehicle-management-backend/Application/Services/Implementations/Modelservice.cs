@@ -67,7 +67,6 @@ namespace vehicle_management_backend.Application.Services.Implementations
                 ModelId = model.ModelId,
                 ModelCode = model.ModelCode,
                 ModelName = model.ModelName,
-
                 Description = model.Description,
                 BrandId = model.BrandId
             };

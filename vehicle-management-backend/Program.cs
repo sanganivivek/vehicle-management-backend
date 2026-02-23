@@ -82,7 +82,7 @@ if (enableSwagger)
 }
 
 // ===================== MIDDLEWARE =====================
-//app.UseHttpsRedirection();
+app.UseHttpsRedirection();
 app.UseRouting();
 app.UseCors("AllowFrontend");
 app.UseAuthorization();
