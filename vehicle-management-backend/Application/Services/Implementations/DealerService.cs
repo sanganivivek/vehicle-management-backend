@@ -51,7 +51,6 @@ namespace vehicle_management_backend.Application.Services.Implementations
         {
             var existingDealer = await _dealerRepository.GetByIdAsync(id);
             if (existingDealer == null) return null;
-
             existingDealer.Name = dealerDto.Name;
             existingDealer.ContactPerson = dealerDto.ContactPerson;
             existingDealer.ContactNo = dealerDto.ContactNo;
@@ -60,7 +59,6 @@ namespace vehicle_management_backend.Application.Services.Implementations
             existingDealer.City = dealerDto.City;
             existingDealer.Address = dealerDto.Address;
             existingDealer.Status = dealerDto.Status;
-
             await _dealerRepository.UpdateAsync(existingDealer);
             await _activityLogService.LogUpdateAsync($"Updated Dealer '{dealerDto.Name}'");
             return existingDealer;

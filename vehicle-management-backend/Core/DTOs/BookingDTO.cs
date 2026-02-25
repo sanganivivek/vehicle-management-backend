@@ -3,6 +3,8 @@ namespace vehicle_management_backend.Core.DTOs
     public class BookingDTO
     {
         public Guid BookingId { get; set; }
+        public int BookingNumber { get; set; }
+        public string FormattedId => $"#{BookingNumber:D4}"; // e.g. #0001
         public Guid VehicleId { get; set; }
         public string VehicleName { get; set; } = string.Empty;
         public string VehicleModel { get; set; } = string.Empty;

@@ -203,6 +203,7 @@ namespace vehicle_management_backend.Application.Services.Implementations
             return new BookingDTO
             {
                 BookingId = booking.BookingId,
+                BookingNumber = booking.BookingNumber,
                 VehicleId = booking.VehicleId,
                 VehicleName = $"{booking.Vehicle?.Brand?.BrandName} {booking.Vehicle?.Model?.ModelName}", // Construct composite name
                 VehicleRegNo = booking.Vehicle?.RegNo ?? "",

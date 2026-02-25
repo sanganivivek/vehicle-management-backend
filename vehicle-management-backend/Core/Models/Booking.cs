@@ -8,6 +8,10 @@ namespace vehicle_management_backend.Core.Models
         [Key]
         public Guid BookingId { get; set; } = Guid.NewGuid();
 
+        // Auto-incremented sequential number for display (e.g. #0001)
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int BookingNumber { get; set; }
+
         [Required]
         public Guid VehicleId { get; set; }
         [ForeignKey("VehicleId")]

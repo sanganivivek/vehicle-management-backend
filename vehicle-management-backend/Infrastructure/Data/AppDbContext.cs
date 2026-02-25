@@ -53,6 +53,11 @@ namespace vehicle_management_backend.Infrastructure.Data
                 .HasForeignKey(b => b.CustomerId)
                 .OnDelete(DeleteBehavior.Restrict);
 
+            // BookingNumber auto-increments on each insert (sequential display ID)
+            modelBuilder.Entity<Booking>()
+                .Property(b => b.BookingNumber)
+                .ValueGeneratedOnAdd();
+
             modelBuilder.Entity<VehicleMaster>()
                 .Property(p => p.OneDayRate)
                 .HasColumnType("decimal(18,2)"); // 18 digits total, 2 decimal places
