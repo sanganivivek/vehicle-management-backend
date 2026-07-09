@@ -57,7 +57,7 @@ namespace vehicle_management_backend.Application.Services.Implementations
             {
                 throw new Exception("End date must be after start date.");
             }
-            if (dto.StartDate.Date < DateTime.UtcNow.Date)
+            if (dto.StartDate.Date < DateTime.Today)
             {
                 throw new Exception("Start date cannot be in the past.");
             }

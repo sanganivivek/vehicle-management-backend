@@ -53,6 +53,11 @@ namespace vehicle_management_backend.Infrastructure.Data
                 .HasForeignKey(b => b.CustomerId)
                 .OnDelete(DeleteBehavior.Restrict);
 
+            // BookingId: use the GUID set in C# (Guid.NewGuid()), do NOT let SQL Server generate it
+            modelBuilder.Entity<Booking>()
+                .Property(b => b.BookingId)
+                .ValueGeneratedNever();
+
             // BookingNumber auto-increments on each insert (sequential display ID)
             modelBuilder.Entity<Booking>()
                 .Property(b => b.BookingNumber)

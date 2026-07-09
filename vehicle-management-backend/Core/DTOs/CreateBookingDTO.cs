@@ -18,7 +18,6 @@ namespace vehicle_management_backend.Core.DTOs
 
         [Required]
         public DateTime EndDate { get; set; }
-
         public string PaymentMethod { get; set; } = "Cash"; 
         public string PaymentStatus { get; set; } = "Pending";
         public int Status { get; set; } = 0; // Default to Pending

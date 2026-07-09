@@ -45,6 +45,8 @@ namespace vehicle_management_backend.Infrastructure.Repositories.Implementations
         public async Task UpdateAsync(Booking booking)
         {
             _context.Bookings.Update(booking);
+            // BookingNumber is a SQL IDENTITY column — EF Core must NOT try to update it
+            _context.Entry(booking).Property(b => b.BookingNumber).IsModified = false;
             await _context.SaveChangesAsync();
         }
 

@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using vehicle_management_backend.Application.Services.Interfaces;
 using vehicle_management_backend.Core.DTOs;
 
@@ -38,6 +39,12 @@ namespace vehicle_management_backend.Controllers
                 var booking = await _bookingService.CreateBookingAsync(dto);
                 return CreatedAtAction(nameof(GetBookingById), new { id = booking.BookingId }, booking);
             }
+            catch (DbUpdateException dbEx)
+            {
+                // Surface the actual database/EF Core inner exception
+                var innerMsg = dbEx.InnerException?.Message ?? dbEx.Message;
+                return StatusCode(500, new { message = "Database error: " + innerMsg });
+            }
             catch (Exception ex)
             {
                 return BadRequest(new { message = ex.Message });
@@ -52,6 +59,11 @@ namespace vehicle_management_backend.Controllers
                 var booking = await _bookingService.UpdateBookingAsync(id, dto);
                 if (booking == null) return NotFound();
                 return Ok(booking);
+            }
+            catch (DbUpdateException dbEx)
+            {
+                var innerMsg = dbEx.InnerException?.Message ?? dbEx.Message;
+                return StatusCode(500, new { message = "Database error: " + innerMsg });
             }
             catch (Exception ex)
             {
